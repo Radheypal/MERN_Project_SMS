@@ -1,0 +1,14 @@
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; }
+input, select, textarea {
+  width: 100%; padding: 10px 12px; margin: 6px 0 16px;
+  border: 1px solid #dde1e7; border-radius: 8px;
+  font-size: 14px; background: #f9fafb;
+  transition: border 0.2s;
+}
+input:focus, select:focus, textarea:focus {
+  outline: none; border-color: #4f46e5; background: #fff;
+}
+label { font-size: 13px; font-weight: 600; color: #374151; }
+button { cursor: pointer; font-size: 14px; border: none; border-radius: 8px; padding: 10px 20px; transition: opacity 0.2s; }
+button:hover { opacity: 0.88; }
