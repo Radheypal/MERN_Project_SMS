@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate, Link } from 'react-router-dom';
 
+const API = import.meta.env.VITE_API_URL || '';
+
 export default function Register({ setAuth }) {
   const [form, setForm] = useState({ name: '', email: '', password: '' });
   const [error, setError] = useState('');
@@ -11,7 +13,7 @@ export default function Register({ setAuth }) {
     e.preventDefault();
     setError('');
     try {
-      const res = await axios.post('/api/register', form);
+      const res = await axios.post(`${API}/api/register`, form);
       localStorage.setItem('token', res.data.token);
       localStorage.setItem('student', JSON.stringify(res.data.student));
       setAuth(res.data.student);
@@ -30,14 +32,11 @@ export default function Register({ setAuth }) {
         {error && <div style={styles.error}>{error}</div>}
         <form onSubmit={handleSubmit}>
           <label>Full Name</label>
-          <input placeholder="Enter your name"
-            value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} required />
+          <input placeholder="Enter your name" value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} required />
           <label>Email</label>
-          <input type="email" placeholder="Enter your email"
-            value={form.email} onChange={e => setForm({ ...form, email: e.target.value })} required />
+          <input type="email" placeholder="Enter your email" value={form.email} onChange={e => setForm({ ...form, email: e.target.value })} required />
           <label>Password</label>
-          <input type="password" placeholder="Create a password"
-            value={form.password} onChange={e => setForm({ ...form, password: e.target.value })} required />
+          <input type="password" placeholder="Create a password" value={form.password} onChange={e => setForm({ ...form, password: e.target.value })} required />
           <button type="submit" style={styles.btn}>Register</button>
         </form>
         <p style={styles.link}>Already have an account? <Link to="/login" style={{ color: '#4f46e5' }}>Login</Link></p>

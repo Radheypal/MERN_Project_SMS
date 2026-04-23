@@ -2,17 +2,18 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate, Link } from 'react-router-dom';
 
+const API = import.meta.env.VITE_API_URL || '';
+
 export default function Login({ setAuth }) {
   const [form, setForm] = useState({ email: '', password: '' });
   const [error, setError] = useState('');
-
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
     try {
-      const res = await axios.post('/api/login', form);
+      const res = await axios.post(`${API}/api/login`, form);
       localStorage.setItem('token', res.data.token);
       localStorage.setItem('student', JSON.stringify(res.data.student));
       setAuth(res.data.student);
