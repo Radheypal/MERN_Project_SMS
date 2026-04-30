@@ -7,11 +7,11 @@ const API = import.meta.env.VITE_API_URL || '';
 export default function Login({ setAuth }) {
   const [form, setForm] = useState({ email: '', password: '' });
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError('');
+    e.preventDefault(); setError(''); setLoading(true);
     try {
       const res = await axios.post(`${API}/api/login`, form);
       localStorage.setItem('token', res.data.token);
@@ -20,38 +20,57 @@ export default function Login({ setAuth }) {
       navigate('/');
     } catch (err) {
       setError(err.response?.data?.message || 'Invalid login credentials');
-    }
+    } finally { setLoading(false); }
   };
 
   return (
-    <div style={styles.page}>
-      <div style={styles.card}>
-        <div style={styles.logo}>🎓</div>
-        <h2 style={styles.title}>Welcome Back</h2>
-        <p style={styles.sub}>Login to your student account</p>
-        {error && <div style={styles.error}>{error}</div>}
-        <form onSubmit={handleSubmit}>
-          <label>Email</label>
-          <input type="email" placeholder="Enter your email"
-            value={form.email} onChange={e => setForm({ ...form, email: e.target.value })} required />
-          <label>Password</label>
-          <input type="password" placeholder="Enter your password"
-            value={form.password} onChange={e => setForm({ ...form, password: e.target.value })} required />
-          <button type="submit" style={styles.btn}>Login</button>
-        </form>
-        <p style={styles.link}>Don't have an account? <Link to="/register" style={{ color: '#4f46e5' }}>Register</Link></p>
+    <div style={s.page}>
+      <div style={s.left}>
+        <div style={s.brand}>🎓</div>
+        <h1 style={s.brandTitle}>Student Grievance System</h1>
+        <p style={s.brandSub}>Submit, track and manage your grievances easily</p>
+        <div style={s.features}>
+          {['📝 Submit grievances anytime', '🔍 Track your complaint status', '✅ Get issues resolved faster'].map(f => (
+            <div key={f} style={s.feature}>{f}</div>
+          ))}
+        </div>
+      </div>
+      <div style={s.right}>
+        <div style={s.card}>
+          <h2 style={s.title}>Welcome Back 👋</h2>
+          <p style={s.sub}>Login to your account</p>
+          {error && <div style={s.error}>⚠️ {error}</div>}
+          <form onSubmit={handleSubmit}>
+            <label>Email Address</label>
+            <input type="email" placeholder="you@example.com"
+              value={form.email} onChange={e => setForm({ ...form, email: e.target.value })} required />
+            <label>Password</label>
+            <input type="password" placeholder="Enter your password"
+              value={form.password} onChange={e => setForm({ ...form, password: e.target.value })} required />
+            <button type="submit" style={s.btn} disabled={loading}>
+              {loading ? 'Logging in...' : 'Login →'}
+            </button>
+          </form>
+          <p style={s.link}>Don't have an account? <Link to="/register" style={{ color: '#6366f1', fontWeight: '600' }}>Register here</Link></p>
+        </div>
       </div>
     </div>
   );
 }
 
-const styles = {
-  page: { minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' },
-  card: { background: '#fff', padding: '40px', borderRadius: '16px', width: '400px', boxShadow: '0 20px 60px rgba(0,0,0,0.15)' },
-  logo: { fontSize: '40px', textAlign: 'center', marginBottom: '8px' },
-  title: { textAlign: 'center', fontSize: '24px', fontWeight: '700', color: '#1f2937' },
-  sub: { textAlign: 'center', color: '#6b7280', marginBottom: '24px', fontSize: '14px' },
-  error: { background: '#fef2f2', color: '#dc2626', padding: '10px', borderRadius: '8px', marginBottom: '16px', fontSize: '14px' },
-  btn: { width: '100%', background: 'linear-gradient(135deg, #667eea, #764ba2)', color: '#fff', padding: '12px', fontWeight: '600', fontSize: '15px', marginTop: '4px' },
-  link: { textAlign: 'center', marginTop: '20px', fontSize: '14px', color: '#6b7280' }
+const s = {
+  page: { minHeight: '100vh', display: 'flex' },
+  left: { flex: 1, background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #a855f7 100%)', display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '60px', color: '#fff' },
+  brand: { fontSize: '56px', marginBottom: '16px' },
+  brandTitle: { fontSize: '32px', fontWeight: '800', marginBottom: '12px', lineHeight: 1.2 },
+  brandSub: { fontSize: '16px', opacity: 0.85, marginBottom: '40px', lineHeight: 1.6 },
+  features: { display: 'flex', flexDirection: 'column', gap: '14px' },
+  feature: { background: 'rgba(255,255,255,0.15)', padding: '12px 18px', borderRadius: '10px', fontSize: '14px', backdropFilter: 'blur(10px)' },
+  right: { flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '40px', background: '#f8fafc' },
+  card: { background: '#fff', padding: '44px', borderRadius: '20px', width: '100%', maxWidth: '420px', boxShadow: '0 10px 40px rgba(0,0,0,0.08)' },
+  title: { fontSize: '26px', fontWeight: '800', color: '#1e293b', marginBottom: '6px' },
+  sub: { color: '#94a3b8', fontSize: '14px', marginBottom: '28px' },
+  error: { background: '#fef2f2', color: '#dc2626', padding: '12px 16px', borderRadius: '10px', marginBottom: '20px', fontSize: '14px' },
+  btn: { width: '100%', background: 'linear-gradient(135deg, #6366f1, #8b5cf6)', color: '#fff', padding: '13px', fontSize: '15px', marginTop: '6px', borderRadius: '10px' },
+  link: { textAlign: 'center', marginTop: '24px', fontSize: '14px', color: '#64748b' }
 };
