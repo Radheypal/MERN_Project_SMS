@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import Chatbot from './Chatbot.jsx';
 
 const API = import.meta.env.VITE_API_URL || '';
 const getHeaders = () => ({ headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } });
@@ -144,6 +145,7 @@ export default function Dashboard({ setAuth }) {
           </div>
         </div>
       </div>
+      <Chatbot />
     </div>
   );
 }
