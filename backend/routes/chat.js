@@ -11,13 +11,8 @@ router.post("/", async (req, res) => {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          contents: [{
-            parts: [{
-              text: `You are a helpful assistant for a Student Grievance Management System. 
-              Help students with their grievances related to Academic, Hostel, Transport, and Other issues.
-              Keep responses concise and helpful. Student message: ${message}`
-            }]
-          }]
+          system_instruction: { parts: [{ text: "You are a helpful assistant for a Student Grievance Management System. Help students with grievances related to Academic, Hostel, Transport, and Other issues. Keep responses concise." }] },
+          contents: [{ parts: [{ text: message }] }]
         })
       }
     );
