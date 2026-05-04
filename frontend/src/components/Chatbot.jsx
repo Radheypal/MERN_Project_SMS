@@ -51,9 +51,11 @@ export default function Chatbot() {
             {messages.map((msg, i) => (
               <div key={i} style={{ display: 'flex', justifyContent: msg.from === 'user' ? 'flex-end' : 'flex-start', marginBottom: '10px' }}>
                 {msg.from === 'bot' && <div style={s.botIcon}>🤖</div>}
-                <div style={msg.from === 'user' ? s.userBubble : s.botBubble}>
-                  {msg.text}
-                </div>
+                <div style={msg.from === 'user' ? s.userBubble : s.botBubble}
+                  dangerouslySetInnerHTML={{ __html: msg.text
+                    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                    .replace(/\*(.*?)\*/g, '• $1')
+                    .replace(/\n/g, '<br/>') }} />
               </div>
             ))}
             {loading && (
