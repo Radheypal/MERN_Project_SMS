@@ -1,76 +1,106 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import { useNavigate, Link } from 'react-router-dom';
 
 const API = import.meta.env.VITE_API_URL || '';
 
-export default function Register({ setAuth }) {
-  const [form, setForm] = useState({ name: '', email: '', password: '' });
+export default function Register({ onLogin, switchToLogin }) {
+  const [form, setForm] = useState({ name: '', email: '', password: '', confirm: '' });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
-    e.preventDefault(); setError(''); setLoading(true);
+    e.preventDefault();
+    setError('');
+    if (form.password !== form.confirm) {
+      return setError('Passwords do not match');
+    }
+    setLoading(true);
     try {
-      const res = await axios.post(`${API}/api/register`, form);
+      const res = await axios.post(`${API}/api/auth/register`, {
+        name: form.name,
+        email: form.email,
+        password: form.password
+      });
       localStorage.setItem('token', res.data.token);
-      localStorage.setItem('student', JSON.stringify(res.data.student));
-      setAuth(res.data.student);
-      navigate('/');
+      localStorage.setItem('user', JSON.stringify(res.data.user));
+      onLogin(res.data.user);
     } catch (err) {
       setError(err.response?.data?.message || 'Registration failed');
-    } finally { setLoading(false); }
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <div style={s.page}>
-      <div style={s.left}>
-        <div style={s.brand}>🎓</div>
-        <h1 style={s.brandTitle}>Join the Grievance Portal</h1>
-        <p style={s.brandSub}>Create your account and start managing your complaints effectively</p>
-        <div style={s.features}>
-          {['🔐 Secure authentication', '📋 Easy grievance submission', '📊 Real-time status tracking'].map(f => (
-            <div key={f} style={s.feature}>{f}</div>
-          ))}
-        </div>
-      </div>
-      <div style={s.right}>
-        <div style={s.card}>
-          <h2 style={s.title}>Create Account ✨</h2>
-          <p style={s.sub}>Register as a new student</p>
-          {error && <div style={s.error}>⚠️ {error}</div>}
-          <form onSubmit={handleSubmit}>
-            <label>Full Name</label>
-            <input placeholder="Enter your full name" value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} required />
-            <label>Email Address</label>
-            <input type="email" placeholder="you@example.com" value={form.email} onChange={e => setForm({ ...form, email: e.target.value })} required />
-            <label>Password</label>
-            <input type="password" placeholder="Create a strong password" value={form.password} onChange={e => setForm({ ...form, password: e.target.value })} required />
-            <button type="submit" style={s.btn} disabled={loading}>
-              {loading ? 'Creating account...' : 'Register →'}
-            </button>
-          </form>
-          <p style={s.link}>Already have an account? <Link to="/login" style={{ color: '#6366f1', fontWeight: '600' }}>Login here</Link></p>
-        </div>
+    <div style={s.wrapper}>
+      <div style={s.card}>
+        <div style={s.logo}>🏢</div>
+        <h2 style={s.title}>Create Account</h2>
+        <p style={s.sub}>Candidate Shortlisting System</p>
+
+        {error && <div style={s.error}>⚠️ {error}</div>}
+
+        <form onSubmit={handleSubmit}>
+          <label style={s.label}>Full Name</label>
+          <input
+            style={s.input}
+            type="text"
+            placeholder="Enter your name"
+            value={form.name}
+            onChange={e => setForm({ ...form, name: e.target.value })}
+            required
+          />
+          <label style={s.label}>Email</label>
+          <input
+            style={s.input}
+            type="email"
+            placeholder="Enter your email"
+            value={form.email}
+            onChange={e => setForm({ ...form, email: e.target.value })}
+            required
+          />
+          <label style={s.label}>Password</label>
+          <input
+            style={s.input}
+            type="password"
+            placeholder="Create a password"
+            value={form.password}
+            onChange={e => setForm({ ...form, password: e.target.value })}
+            required
+          />
+          <label style={s.label}>Confirm Password</label>
+          <input
+            style={s.input}
+            type="password"
+            placeholder="Confirm your password"
+            value={form.confirm}
+            onChange={e => setForm({ ...form, confirm: e.target.value })}
+            required
+          />
+          <button type="submit" style={s.btn} disabled={loading}>
+            {loading ? '⏳ Registering...' : '✅ Register'}
+          </button>
+        </form>
+
+        <p style={s.switchText}>
+          Already have an account?{' '}
+          <span style={s.link} onClick={switchToLogin}>Login here</span>
+        </p>
       </div>
     </div>
   );
 }
 
 const s = {
-  page: { minHeight: '100vh', display: 'flex' },
-  left: { flex: 1, background: 'linear-gradient(135deg, #10b981 0%, #059669 50%, #047857 100%)', display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '60px', color: '#fff' },
-  brand: { fontSize: '56px', marginBottom: '16px' },
-  brandTitle: { fontSize: '32px', fontWeight: '800', marginBottom: '12px', lineHeight: 1.2 },
-  brandSub: { fontSize: '16px', opacity: 0.85, marginBottom: '40px', lineHeight: 1.6 },
-  features: { display: 'flex', flexDirection: 'column', gap: '14px' },
-  feature: { background: 'rgba(255,255,255,0.15)', padding: '12px 18px', borderRadius: '10px', fontSize: '14px', backdropFilter: 'blur(10px)' },
-  right: { flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '40px', background: '#f8fafc' },
-  card: { background: '#fff', padding: '44px', borderRadius: '20px', width: '100%', maxWidth: '420px', boxShadow: '0 10px 40px rgba(0,0,0,0.08)' },
-  title: { fontSize: '26px', fontWeight: '800', color: '#1e293b', marginBottom: '6px' },
-  sub: { color: '#94a3b8', fontSize: '14px', marginBottom: '28px' },
-  error: { background: '#fef2f2', color: '#dc2626', padding: '12px 16px', borderRadius: '10px', marginBottom: '20px', fontSize: '14px' },
-  btn: { width: '100%', background: 'linear-gradient(135deg, #10b981, #059669)', color: '#fff', padding: '13px', fontSize: '15px', marginTop: '6px', borderRadius: '10px' },
-  link: { textAlign: 'center', marginTop: '24px', fontSize: '14px', color: '#64748b' }
+  wrapper: { minHeight: '100vh', background: 'linear-gradient(135deg, #1e1b4b, #312e81)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' },
+  card: { background: '#fff', padding: '40px', borderRadius: '20px', width: '100%', maxWidth: '420px', boxShadow: '0 20px 60px rgba(0,0,0,0.3)' },
+  logo: { fontSize: '48px', textAlign: 'center', marginBottom: '12px' },
+  title: { fontSize: '24px', fontWeight: '800', color: '#1e293b', textAlign: 'center', marginBottom: '4px' },
+  sub: { color: '#94a3b8', fontSize: '14px', textAlign: 'center', marginBottom: '28px' },
+  label: { display: 'block', fontSize: '13px', fontWeight: '600', color: '#475569', marginBottom: '5px' },
+  input: { width: '100%', padding: '12px 14px', border: '1.5px solid #e2e8f0', borderRadius: '10px', fontSize: '14px', background: '#f8fafc', marginBottom: '16px', outline: 'none', boxSizing: 'border-box' },
+  btn: { width: '100%', background: 'linear-gradient(135deg, #10b981, #059669)', color: '#fff', padding: '13px', fontSize: '15px', fontWeight: '700', border: 'none', borderRadius: '10px', cursor: 'pointer', marginTop: '4px' },
+  error: { background: '#fef2f2', color: '#dc2626', padding: '12px', borderRadius: '10px', marginBottom: '16px', fontSize: '14px' },
+  switchText: { textAlign: 'center', marginTop: '20px', fontSize: '14px', color: '#64748b' },
+  link: { color: '#6366f1', fontWeight: '700', cursor: 'pointer' }
 };
